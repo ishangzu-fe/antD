@@ -23,6 +23,7 @@ import {
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
+import FieldFilter from '@/components/FieldFilter'; // 列表 header 筛选
 
 import styles from './TableList.less';
 
@@ -67,8 +68,8 @@ const CreateForm = Form.create()(props => {
 @Form.create()
 class UpdateForm extends PureComponent {
   static defaultProps = {
-    handleUpdate: () => {},
-    handleUpdateModalVisible: () => {},
+    handleUpdate: () => { },
+    handleUpdateModalVisible: () => { },
     values: {},
   };
 
@@ -286,74 +287,94 @@ class TableList extends PureComponent {
     selectedRows: [],
     formValues: {},
     stepFormValues: {},
-  };
-
-  columns = [
-    {
-      title: '规则名称',
-      dataIndex: 'name',
-    },
-    {
-      title: '描述',
-      dataIndex: 'desc',
-    },
-    {
-      title: '服务调用次数',
-      dataIndex: 'callNo',
-      sorter: true,
-      align: 'right',
-      render: val => `${val} 万`,
-      // mark to display a total number
-      needTotal: true,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      filters: [
-        {
-          text: status[0],
-          value: 0,
-        },
-        {
-          text: status[1],
-          value: 1,
-        },
-        {
-          text: status[2],
-          value: 2,
-        },
-        {
-          text: status[3],
-          value: 3,
-        },
-      ],
-      render(val) {
-        return <Badge status={statusMap[val]} text={status[val]} />;
+    columns: [
+      {
+        title: '规则名称',
+        dataIndex: 'name',
+        checked: true,
+        value: 'name',
+        description: '备注1',
       },
-    },
-    {
-      title: '上次调度时间',
-      dataIndex: 'updatedAt',
-      sorter: true,
-      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
-      title: '操作',
-      render: (text, record) => (
-        <Fragment>
-          <a onClick={() => this.handleUpdateModalVisible(true, record)}>配置</a>
-          <Divider type="vertical" />
-          <a href="">订阅警报</a>
-        </Fragment>
-      ),
-    },
-  ];
+      {
+        title: '描述',
+        dataIndex: 'desc',
+        checked: false,
+        value: 'desc',
+        description: '备注2',
+      },
+      {
+        title: '服务调用次数',
+        dataIndex: 'callNo',
+        sorter: true,
+        align: 'right',
+        render: val => `${val} 万`,
+        // mark to display a total number
+        needTotal: true,
+        checked: true,
+        value: 'callNo',
+        description: '备注3',
+      },
+      {
+        title: '状态',
+        dataIndex: 'status',
+        filters: [
+          {
+            text: status[0],
+            value: 0,
+          },
+          {
+            text: status[1],
+            value: 1,
+          },
+          {
+            text: status[2],
+            value: 2,
+          },
+          {
+            text: status[3],
+            value: 3,
+          },
+        ],
+        render(val) {
+          return <Badge status={statusMap[val]} text={status[val]} />;
+        },
+        checked: true,
+        value: 'status',
+        description: '备注4',
+      },
+      {
+        title: '上次调度时间',
+        dataIndex: 'updatedAt',
+        sorter: true,
+        render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+        checked: true,
+        value: 'updatedAt',
+        description: '备注5',
+      },
+      {
+        title: '操作',
+        render: (text, record) => (
+          <Fragment>
+            <a onClick={() => this.handleUpdateModalVisible(true, record)}>配置</a>
+            <Divider type="vertical" />
+            <a href="">订阅警报</a>
+          </Fragment>
+        ),
+        checked: true,
+        value: 'operation',
+        description: '备注6',
+      },
+    ],
+    newColumns: [],
+  };
 
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
       type: 'rule/fetch',
     });
+
+    this.loadNewColumns();
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -615,6 +636,19 @@ class TableList extends PureComponent {
     return expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
   }
 
+  loadNewColumns() {
+    let arrayColumns = this.state.columns;
+    let newColumns = [];
+    arrayColumns.map((item, index) => {
+      if (item.checked === true) {
+        newColumns.push(arrayColumns[index])
+      }
+    });
+    this.setState({
+      newColumns: newColumns
+    })
+  }
+
   render() {
     const {
       rule: { data },
@@ -645,6 +679,25 @@ class TableList extends PureComponent {
               <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
                 新建
               </Button>
+
+              <FieldFilter
+                config={{ label: "title", value: "value", description: "description" }}
+                data={this.state.columns}
+                onChange={(value, item, index) => {
+                  // 赋值然后替换
+                  let arrayColumns = this.state.columns;
+                  let newColumns = [];
+                  arrayColumns.map((item, index) => {
+                    if (item.checked === true) {
+                      newColumns.push(arrayColumns[index])
+                    }
+                  });
+                  // console.log(newColumns);
+                  this.setState({
+                    newColumns: newColumns
+                  })
+                }} />
+
               {selectedRows.length > 0 && (
                 <span>
                   <Button>批量操作</Button>
@@ -660,7 +713,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               data={data}
-              columns={this.columns}
+              columns={this.state.newColumns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
