@@ -21,6 +21,10 @@ class StandardTable extends PureComponent {
     this.state = {
       selectedRowKeys: [],
       needTotalList,
+      scroll: {
+        // TODO:计算tbodyHeight高度
+        y: 240,
+      },
     };
   }
 
@@ -62,7 +66,7 @@ class StandardTable extends PureComponent {
   };
 
   render() {
-    const { selectedRowKeys, needTotalList } = this.state;
+    const { selectedRowKeys, needTotalList, scroll } = this.state;
     const { data = {}, rowKey, ...rest } = this.props;
     const { list = [], pagination } = data;
 
@@ -111,6 +115,7 @@ class StandardTable extends PureComponent {
           dataSource={list}
           pagination={paginationProps}
           onChange={this.handleTableChange}
+          scroll={scroll}
           {...rest}
         />
       </div>

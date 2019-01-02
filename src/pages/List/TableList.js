@@ -68,8 +68,8 @@ const CreateForm = Form.create()(props => {
 @Form.create()
 class UpdateForm extends PureComponent {
   static defaultProps = {
-    handleUpdate: () => { },
-    handleUpdateModalVisible: () => { },
+    handleUpdate: () => {},
+    handleUpdateModalVisible: () => {},
     values: {},
   };
 
@@ -294,6 +294,7 @@ class TableList extends PureComponent {
         checked: true,
         value: 'name',
         description: '备注1',
+        width: '15%',
       },
       {
         title: '描述',
@@ -301,6 +302,7 @@ class TableList extends PureComponent {
         checked: false,
         value: 'desc',
         description: '备注2',
+        width: '30%',
       },
       {
         title: '服务调用次数',
@@ -313,6 +315,7 @@ class TableList extends PureComponent {
         checked: true,
         value: 'callNo',
         description: '备注3',
+        width: '10%',
       },
       {
         title: '状态',
@@ -341,6 +344,7 @@ class TableList extends PureComponent {
         checked: true,
         value: 'status',
         description: '备注4',
+        width: '10%',
       },
       {
         title: '上次调度时间',
@@ -350,6 +354,7 @@ class TableList extends PureComponent {
         checked: true,
         value: 'updatedAt',
         description: '备注5',
+        width: '20%',
       },
       {
         title: '操作',
@@ -517,6 +522,23 @@ class TableList extends PureComponent {
     this.handleUpdateModalVisible();
   };
 
+  // TODO:table theader 处理
+  loadNewColumns() {
+    const { columns } = this.state;
+    const arrayColumns = columns;
+    const newColumns = [];
+    arrayColumns.map((item, index) => {
+      if (item.checked === true) {
+        newColumns.push(arrayColumns[index]);
+        return true;
+      }
+      return false;
+    });
+    this.setState({
+      newColumns,
+    });
+  }
+
   renderSimpleForm() {
     const {
       form: { getFieldDecorator },
@@ -636,25 +658,19 @@ class TableList extends PureComponent {
     return expandForm ? this.renderAdvancedForm() : this.renderSimpleForm();
   }
 
-  loadNewColumns() {
-    let arrayColumns = this.state.columns;
-    let newColumns = [];
-    arrayColumns.map((item, index) => {
-      if (item.checked === true) {
-        newColumns.push(arrayColumns[index])
-      }
-    });
-    this.setState({
-      newColumns: newColumns
-    })
-  }
-
   render() {
     const {
       rule: { data },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, updateModalVisible, stepFormValues } = this.state;
+    const {
+      selectedRows,
+      modalVisible,
+      updateModalVisible,
+      stepFormValues,
+      columns,
+      newColumns,
+    } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="remove">删除</Menu.Item>
@@ -680,23 +696,27 @@ class TableList extends PureComponent {
                 新建
               </Button>
 
+              {/* TODO:FieldFilter组件 */}
               <FieldFilter
-                config={{ label: "title", value: "value", description: "description" }}
-                data={this.state.columns}
-                onChange={(value, item, index) => {
+                config={{ label: 'title', value: 'value', description: 'description' }}
+                data={columns}
+                onChange={() => {
                   // 赋值然后替换
-                  let arrayColumns = this.state.columns;
-                  let newColumns = [];
+                  const arrayColumns = columns;
+                  const newColumnsArray = [];
                   arrayColumns.map((item, index) => {
                     if (item.checked === true) {
-                      newColumns.push(arrayColumns[index])
+                      newColumnsArray.push(arrayColumns[index]);
+                      return true;
                     }
+                    return false;
                   });
                   // console.log(newColumns);
                   this.setState({
-                    newColumns: newColumns
-                  })
-                }} />
+                    newColumns: newColumnsArray,
+                  });
+                }}
+              />
 
               {selectedRows.length > 0 && (
                 <span>
@@ -713,7 +733,7 @@ class TableList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               data={data}
-              columns={this.state.newColumns}
+              columns={newColumns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
