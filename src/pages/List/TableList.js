@@ -696,28 +696,6 @@ class TableList extends PureComponent {
                 新建
               </Button>
 
-              {/* TODO:FieldFilter组件 */}
-              <FieldFilter
-                config={{ label: 'title', value: 'value', description: 'description' }}
-                data={columns}
-                onChange={() => {
-                  // 赋值然后替换
-                  const arrayColumns = columns;
-                  const newColumnsArray = [];
-                  arrayColumns.map((item, index) => {
-                    if (item.checked === true) {
-                      newColumnsArray.push(arrayColumns[index]);
-                      return true;
-                    }
-                    return false;
-                  });
-                  // console.log(newColumns);
-                  this.setState({
-                    newColumns: newColumnsArray,
-                  });
-                }}
-              />
-
               {selectedRows.length > 0 && (
                 <span>
                   <Button>批量操作</Button>
@@ -736,6 +714,28 @@ class TableList extends PureComponent {
               columns={newColumns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
+            />
+
+            {/* TODO:FieldFilter组件 */}
+            <FieldFilter
+              config={{ label: 'title', value: 'value', description: 'description' }}
+              data={columns}
+              onChange={() => {
+                // 赋值然后替换
+                const arrayColumns = columns;
+                const newColumnsArray = [];
+                arrayColumns.map((item, index) => {
+                  if (item.checked === true) {
+                    newColumnsArray.push(arrayColumns[index]);
+                    return true;
+                  }
+                  return false;
+                });
+                // console.log(newColumns);
+                this.setState({
+                  newColumns: newColumnsArray,
+                });
+              }}
             />
           </div>
         </Card>
