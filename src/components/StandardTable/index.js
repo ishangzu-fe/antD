@@ -23,7 +23,7 @@ class StandardTable extends PureComponent {
       needTotalList,
       scroll: {
         // TODO:计算tbodyHeight高度
-        y: 240,
+        y: 360,
       },
     };
   }
