@@ -171,6 +171,7 @@ class BasicLayout extends React.PureComponent {
     const contentStyle = !fixedHeader ? { paddingTop: 0 } : {};
     const layout = (
       <Layout>
+        {/* 左侧菜单 */}
         {isTop && !isMobile ? null : (
           <SiderMenu
             logo={logo}
@@ -196,6 +197,7 @@ class BasicLayout extends React.PureComponent {
           />
           <Content className={styles.content} style={contentStyle}>
             <Authorized authority={routerConfig} noMatch={<Exception403 />}>
+              {/* 右侧内容 */}
               {children}
             </Authorized>
           </Content>
